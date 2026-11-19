@@ -3,57 +3,71 @@
 > **Platform:** TryHackMe  
 > **Investigation type:** Phishing-led endpoint compromise and network investigation  
 > **Role perspective:** SOC Analyst Level 1  
-> **Status:** Completed  
+> **Status:** Completed — portfolio case study  
 > **Environment:** Authorized, simulated training environment
 
 ## 1. Executive Summary
 
-This investigation examined a Windows workstation affected by a phishing-led attack chain. The analysis combined endpoint event logs and network traffic to identify the initial malicious document, exploitation activity, persistence artefacts, and command-and-control (C2) communication.
+This investigation examined a Windows workstation affected by a phishing-led attack chain. Endpoint event evidence and network traffic were reviewed to identify the suspicious document, exploitation context, persistence artefacts, and possible command-and-control (C2) communication.
 
-The investigation identified a malicious document named `free_magicules.doc`, associated with Microsoft Word process ID `496`. The activity was linked to **CVE-2022-30190 (Follina)**. A Startup-folder shortcut named `update.lnk` and an archive named `update.zip` were also identified. Network analysis identified HTTP C2 activity associated with `resolve.cyber:80`.
+The investigation identified a document named `free_magicules.doc`, activity involving `WINWORD.EXE` (PID `496`), and activity associated with **CVE-2022-30190 (Follina)**. A Startup-folder shortcut named `update.lnk` and an archive named `update.zip` were also identified. Network analysis identified HTTP activity associated with `resolve.cyber:80`.
 
-This report records the findings established during the lab. Exact event timestamps, file hashes, destination IP addresses, and some execution details are not included because they were not confirmed in the available investigation notes.
+The available investigation notes do not contain verified timestamps for every event, file hashes, destination IP addresses, or the complete target of the shortcut. These gaps are explicitly retained rather than filled with assumptions.
 
-## 2. Investigation Objectives
+## 2. Investigation Scope and Objectives
 
-- Review endpoint and Windows event evidence for suspicious execution.
-- Identify the phishing-related document and exploitation activity.
-- Locate persistence artefacts.
-- Review network traffic for C2 communication.
-- Record defensible findings and recommend appropriate response actions.
+- Review endpoint and Windows event evidence for suspicious activity.
+- Identify the phishing-related document and exploitation context.
+- Locate possible persistence artefacts.
+- Review network traffic for HTTP communication associated with the incident.
+- Correlate endpoint and network observations.
+- Produce a defensible SOC L1 assessment and escalation recommendation.
+
+**Scope note:** This is a training-lab investigation, not a claim of a complete enterprise forensic examination.
 
 ## 3. Evidence Sources
 
-| Evidence | Purpose |
+| Evidence source | Intended use |
 |---|---|
-| `sysmon.evtx` | Endpoint process and system activity |
-| `windows.evtx` | Windows event evidence |
-| `capture.pcapng` | Network traffic and suspected C2 activity |
+| `sysmon.evtx` | Review process and endpoint activity |
+| `windows.evtx` | Review relevant Windows event records |
+| `capture.pcapng` | Inspect network traffic and HTTP activity |
 
-## 4. Tools and Techniques
+The source filenames are recorded from the investigation materials. Individual event record IDs, packet numbers, timestamps, and cryptographic hashes were not retained in the notes available for this report.
 
-- **PowerShell / Windows Event Log analysis:** Review event records and process activity.
-- **Sysmon logs:** Investigate process and endpoint events.
-- **Wireshark:** Inspect packet capture and HTTP traffic.
-- **Event correlation:** Relate endpoint artefacts to network observations.
+## 4. Tools and Investigation Approach
 
-The investigation used a correlation-based approach: suspicious endpoint activity was reviewed alongside network evidence rather than treating individual events as proof in isolation.
+- **Windows Event Viewer / PowerShell:** Review Windows event records.
+- **Sysmon event data:** Examine process and endpoint activity.
+- **Wireshark:** Inspect packet capture contents and HTTP traffic.
+- **Event correlation:** Compare endpoint observations with network findings.
+
+### Analyst workflow
+
+1. Identify suspicious document and process activity in endpoint evidence.
+2. Assess the document activity against the known Follina vulnerability context.
+3. Review identified files and Startup-folder artefacts as possible execution or persistence leads.
+4. Inspect the packet capture for related HTTP communication.
+5. Correlate findings and separate direct observations from analytical interpretation.
+6. Assess severity and recommend escalation.
+
+This workflow describes the investigation approach. It does not imply that every artefact was independently validated through a separate forensic acquisition.
 
 ## 5. Key Findings
 
-### Finding 1 — Malicious document
+### Finding 1 — Phishing-related document
 
 - **File:** `free_magicules.doc`
 - **Related process:** `WINWORD.EXE`
 - **Process ID observed:** `496`
 
-The document was identified as part of the phishing-led activity investigated in the room.
+The document was identified as part of the phishing-related activity investigated in the room. The process association provides endpoint context but, by itself, does not establish every subsequent execution action.
 
-### Finding 2 — Exploitation activity
+### Finding 2 — Follina exploitation context
 
-The activity was associated with **CVE-2022-30190**, commonly known as **Follina**, a Microsoft Support Diagnostic Tool (MSDT) vulnerability that can be abused through specially crafted Office documents.
+The activity was associated with **CVE-2022-30190**, commonly known as **Follina**, a vulnerability involving the Microsoft Support Diagnostic Tool (MSDT) that can be abused through specially crafted Office documents.
 
-The finding connects the malicious Office document to the exploitation stage of the incident. The report does not claim a specific payload command or successful execution detail beyond what was established in the investigation.
+The available investigation notes support associating the malicious Office document with the Follina stage. They do not preserve a complete payload command or sufficient event detail to independently reconstruct every execution step.
 
 ### Finding 3 — Startup persistence artefact
 
@@ -63,104 +77,120 @@ A shortcut named `update.lnk` was identified in the Windows Startup folder:
 C:\Users\benimaru\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\update.lnk
 ```
 
-A Startup-folder shortcut can be used to launch a program or command when a user logs on. Its presence is consistent with a persistence mechanism and should be treated as suspicious in the context of this incident.
+A Startup-folder shortcut can launch a program or command at user logon. Its presence is a persistence lead and is suspicious in the context of the other findings. The shortcut's target and arguments are not included because they were not preserved in the available notes.
 
-### Finding 4 — Downloaded archive
+### Finding 4 — Archive
 
-The archive `update.zip` was identified during the investigation. It was associated with the suspicious activity, but the available notes do not establish a verified file hash or the complete contents of the archive.
+- **File:** `update.zip`
 
-### Finding 5 — Command-and-control communication
+The archive was identified during the investigation and associated with the suspicious activity. Its verified hash and complete contents are not available in the retained notes; therefore, no payload identity is asserted here.
 
-Network analysis identified HTTP C2 activity associated with:
+### Finding 5 — HTTP communication
 
-| Field | Finding |
+Network analysis identified HTTP activity associated with the following indicator:
+
+| Field | Observation |
 |---|---|
 | Hostname | `resolve.cyber` |
 | Port | `80` |
 | Protocol | HTTP |
-| DNS resolution | A DNS resolution failure was observed during analysis |
+| DNS lookup | A resolution failure was observed during analysis |
 
-The hostname and port are recorded as the lab finding. A DNS resolution failure does not, by itself, disprove the observed C2 indicator; it means the hostname did not resolve successfully during that particular lookup.
+The hostname and port are recorded as lab findings. A DNS lookup failure during one analysis attempt does not, by itself, disprove the observed network indicator. The destination IP and packet-level timestamps were not retained.
 
-## 6. Attack Progression
+## 6. Reconstructed Attack Progression
 
-The evidence supports the following high-level progression:
+The available findings support this high-level sequence:
 
 1. A phishing-related Office document, `free_magicules.doc`, was involved in the initial compromise.
-2. The document activity was associated with the Follina vulnerability (CVE-2022-30190).
-3. The investigation identified `update.zip` as a downloaded archive.
-4. A suspicious shortcut, `update.lnk`, was found in the user's Startup folder, indicating a persistence concern.
-5. Network analysis identified HTTP C2 activity associated with `resolve.cyber:80`.
+2. The document activity was associated with Follina (CVE-2022-30190).
+3. The archive `update.zip` was identified during the investigation.
+4. The Startup-folder shortcut `update.lnk` was identified as a possible persistence mechanism.
+5. HTTP activity associated with `resolve.cyber:80` was identified in network analysis.
 
-**Timeline limitation:** Exact timestamps and a fully ordered event timeline were not retained in the available notes. The sequence above is a high-level reconstruction, not a timestamp-verified chronology.
+**Timeline qualification:** This is a high-level analytical reconstruction, not a timestamp-verified chronology. The exact ordering and timing of individual actions should be validated against original event records and packet timestamps before being treated as a forensic timeline.
 
 ## 7. MITRE ATT&CK Mapping
 
-The following mappings are based on the observed behaviour and should be treated as analytical classifications:
-
-| Tactic | Technique | ID | Basis |
+| Tactic | Technique | ID | Evidence basis |
 |---|---|---|---|
-| Initial Access | Phishing: Spearphishing Attachment | T1566.001 | Malicious Office document delivered through phishing activity |
+| Initial Access | Phishing: Spearphishing Attachment | T1566.001 | Phishing-related malicious Office document |
 | Execution | Exploitation for Client Execution | T1203 | Activity associated with CVE-2022-30190 / Follina |
 | Persistence | Boot or Logon Autostart Execution: Startup Folder | T1547.001 | Shortcut identified in the user's Startup folder |
-| Command and Control | Application Layer Protocol: Web Protocols | T1071.001 | HTTP C2 activity associated with `resolve.cyber:80` |
+| Command and Control | Application Layer Protocol: Web Protocols | T1071.001 | HTTP activity associated with `resolve.cyber:80` |
 
-These mappings describe the behaviour indicated by the available evidence; they are not a substitute for a complete forensic timeline.
+These are behaviour-based analytical mappings. They should be revisited if additional evidence changes the understanding of the execution chain or network activity.
 
-## 8. Indicators and Artefacts
+## 8. Indicator and Artefact Register
 
-| Type | Indicator / Artefact | Context |
+| Type | Indicator / artefact | Context | Validation status |
+|---|---|---|---|
+| File | `free_magicules.doc` | Phishing-related Office document | Identified in lab investigation |
+| Process | `WINWORD.EXE` — PID `496` | Associated with document activity | Observed in investigation notes |
+| Vulnerability | `CVE-2022-30190` | Follina context | Associated with document activity |
+| File | `update.zip` | Archive identified during investigation | Identified; contents/hash not retained |
+| File | `update.lnk` | Startup-folder shortcut | Identified; target not retained |
+| Path | `C:\Users\benimaru\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\update.lnk` | Startup location | Path recorded |
+| Hostname | `resolve.cyber` | HTTP communication indicator | Identified in network analysis |
+| Port / protocol | `80 / HTTP` | Network communication | Identified in network analysis |
+
+**IOC handling:** The hostname is a lab indicator, not a verified current threat-intelligence verdict. Validate indicators in context before using them for production blocking or threat attribution.
+
+## 9. Evidence Gaps and Validation Needed
+
+The following details were not present in the investigation notes retained for this report:
+
+| Evidence gap | Why it matters | Recommended validation |
 |---|---|---|
-| File | `free_magicules.doc` | Malicious Office document |
-| Process | `WINWORD.EXE` (PID `496`) | Process associated with document activity |
-| Vulnerability | `CVE-2022-30190` | Follina |
-| File | `update.zip` | Archive identified during investigation |
-| Persistence artefact | `update.lnk` | Startup-folder shortcut |
-| File path | `C:\Users\benimaru\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\update.lnk` | Startup location |
-| Network hostname | `resolve.cyber` | C2 hostname identified in network analysis |
-| Network port / protocol | `80 / HTTP` | C2 communication |
+| Exact event timestamps | Establishes a defensible event sequence | Re-open original EVTX records and record event time and EventRecordID |
+| Process command line and parent process | Clarifies execution chain | Review relevant Sysmon process-creation events |
+| Shortcut target and arguments | Confirms what would launch at logon | Inspect `update.lnk` metadata in a safe analysis environment |
+| Archive contents and SHA-256 | Supports file identification and correlation | Hash and inspect the archive in an isolated lab |
+| HTTP packet number, URI, headers, and destination IP | Makes the network finding independently reproducible | Revisit the PCAP and record packet/frame references |
+| Supporting screenshots | Allows a reviewer to verify key observations quickly | Capture sanitized screenshots of the relevant log and packet views |
 
-No file hashes or destination IP addresses are published in this report because verified values were not available in the investigation notes.
+No missing value has been estimated or fabricated. These are limitations of the retained report evidence, not proof that the underlying lab did not contain the information.
 
-## 9. SOC Analyst Assessment
+## 10. SOC L1 Assessment and Escalation
 
-From a SOC L1 perspective, the combination of a suspicious Office document, activity associated with a known Office exploitation vulnerability, a Startup-folder shortcut, and HTTP C2 traffic warrants escalation as a suspected endpoint compromise.
-
-A suitable alert disposition would be:
+From a SOC L1 perspective, the combination of a suspicious Office document, activity associated with a known Office-document exploitation vulnerability, a Startup-folder shortcut, and related HTTP network activity warrants escalation as a suspected endpoint compromise.
 
 - **Classification:** Suspected malware / endpoint compromise
-- **Priority:** High, pending organisational severity matrix
-- **Escalation:** Incident Response / SOC L2
-- **Reason:** Multiple related endpoint and network indicators suggest execution, persistence, and external communication.
+- **Suggested priority:** High, subject to the organisation's severity matrix
+- **Escalation:** SOC L2 / Incident Response
+- **Rationale:** Multiple endpoint and network observations are consistent with a compromise involving execution, a possible persistence mechanism, and external communication.
 
-## 10. Recommended Response Actions
+The analyst should preserve the distinction between observed facts, contextual interpretation, and unverified hypotheses when escalating.
 
-In a real enterprise environment, the SOC should follow approved incident-response procedures:
+## 11. Recommended Response Actions
 
-1. Isolate the affected endpoint from the network where authorised.
-2. Preserve relevant endpoint, Windows, and network evidence.
-3. Escalate the incident with the observed artefacts and event context.
-4. Review the Startup folder and identify the target of `update.lnk` without executing it.
-5. Investigate `update.zip` in a controlled malware-analysis environment.
-6. Hunt across the environment for the document name, shortcut name, hostname, and related process activity.
-7. Block confirmed malicious indicators through approved security controls.
-8. Reset potentially exposed credentials after assessing scope and following incident-response policy.
-9. Validate eradication and monitor for recurrence before restoring normal connectivity.
+In a real enterprise environment, follow approved incident-response procedures:
 
-## 11. Lessons Learned
+1. Isolate the affected endpoint where authorised and operationally appropriate.
+2. Preserve relevant endpoint, Windows, and network evidence before remediation.
+3. Escalate with event context, timestamps, host details, and the observed artefacts.
+4. Inspect the Startup shortcut's target and arguments without executing it.
+5. Investigate the archive in a controlled malware-analysis environment.
+6. Hunt for the document name, shortcut name, hostname, and related process activity across the environment.
+7. Validate indicators before blocking them through approved security controls.
+8. Assess possible credential exposure and follow the organisation's credential-reset policy.
+9. Confirm eradication and monitor for recurrence before restoring normal connectivity.
 
-- Correlating endpoint logs with packet captures provides stronger investigative context than relying on a single alert.
-- Office documents can be an initial vector for exploitation and should be investigated carefully.
-- Startup-folder artefacts are important persistence leads.
-- DNS lookup failure should be recorded accurately and should not automatically invalidate other network evidence.
-- A professional case report should distinguish confirmed observations from assumptions and unresolved details.
+## 12. Lessons Learned
 
-## 12. Conclusion
+- Correlating endpoint logs with packet captures provides stronger context than relying on a single event.
+- Office documents can be an initial vector for exploitation and require careful investigation.
+- Startup-folder artefacts are useful persistence leads, but their targets should be verified.
+- A DNS lookup failure should be documented precisely and should not automatically invalidate other network observations.
+- A professional SOC report must distinguish evidence, interpretation, confidence, and unresolved questions.
+- A timeline is only as reliable as its source timestamps and event references.
 
-The Operation Tempest investigation identified a phishing-related malicious Office document, activity associated with Follina (CVE-2022-30190), a suspicious Startup-folder shortcut, a downloaded archive, and HTTP C2 activity associated with `resolve.cyber:80`.
+## 13. Conclusion
 
-The findings demonstrate practical SOC L1 investigation skills across endpoint event analysis, vulnerability context, persistence identification, network traffic analysis, evidence correlation, ATT&CK mapping, and escalation recommendations.
+The Operation Tempest investigation identified a phishing-related Office document, activity associated with Follina (CVE-2022-30190), a suspicious Startup-folder shortcut, an archive, and HTTP activity associated with `resolve.cyber:80`.
 
-## 13. Disclaimer
+The case demonstrates SOC L1 investigation practices across endpoint event review, vulnerability context, persistence analysis, network traffic inspection, evidence correlation, ATT&CK mapping, and escalation recommendations. The report also records evidence limitations transparently so that conclusions are not overstated.
 
-This investigation was completed in the authorized TryHackMe training environment. The report is for educational and portfolio purposes only. No live malware, credentials, or executable payloads are included.
+## 14. Disclaimer
+
+This case study is based on an authorized TryHackMe training environment and is published for educational and portfolio purposes. It is not a real-world incident attribution or a complete forensic report. No live malware, credentials, or executable payloads are included.
