@@ -57,5 +57,5 @@ Each completed case report aims to include:
 | Project | Focus | Status |
 |---|---|---|
 | [Operation Tempest](./TryHackMe/Operation-Tempest/) | End-to-end incident response, endpoint and network artifact analysis | Completed investigation; report available |
-| [Boogeyman 2](./TryHackMe/Boogeyman-2/) | Phishing, malicious document execution, memory forensics, C2, scheduled-task persistence | In progress |
+| [Boogeyman 1](./TryHackMe/Boogeyman-1/) | Phishing, malicious shortcut, PowerShell execution, host reconnaissance, DNS-based exfiltration | Completed with video walkthrough assistance |
 
