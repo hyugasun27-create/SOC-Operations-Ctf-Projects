@@ -30,7 +30,7 @@ It contains investigation reports, technical findings, security event analysis, 
 | SIEM | Wazuh, Splunk, Elastic |
 | Network Analysis | Wireshark, Tshark |
 | Endpoint Analysis | Sysmon, PowerShell |
-| Forensics | EvtxECmd, Timeline Explorer |
+| Forensics | Volatility 3, EvtxECmd, Timeline Explorer |
 | Operating Systems | Windows, Linux |
 
 ## Investigation Documentation
@@ -49,8 +49,10 @@ Each completed case report aims to include:
 
 ## Current Learning Goals
 
-- SOC Analyst Level
-
+- SOC Analyst Level 1 investigation and escalation
+- Endpoint and network evidence correlation
+- Memory forensics and malware analysis
+- SIEM detection and incident reporting
 
 ## TryHackMe Case Studies
 
@@ -58,4 +60,4 @@ Each completed case report aims to include:
 |---|---|---|
 | [Operation Tempest](./TryHackMe/Operation-Tempest/) | End-to-end incident response, endpoint and network artifact analysis | Completed investigation; report available |
 | [Boogeyman 1](./TryHackMe/Boogeyman-1/) | Phishing, malicious shortcut, PowerShell execution, host reconnaissance, DNS-based exfiltration | Completed with video walkthrough assistance |
-
+| [Boogeyman 2](./TryHackMe/Boogeyman-2/) | Phishing, malicious Office macro, staged payload delivery, Windows memory forensics, C2 analysis, scheduled-task persistence | Completed training-room investigation; report documents evidence gaps |
