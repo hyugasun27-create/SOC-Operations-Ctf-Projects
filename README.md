@@ -61,3 +61,4 @@ Each completed case report aims to include:
 | [Operation Tempest](./TryHackMe/Operation-Tempest/) | End-to-end incident response, endpoint and network artifact analysis | Completed investigation; report available |
 | [Boogeyman 1](./TryHackMe/Boogeyman-1/) | Phishing, malicious shortcut, PowerShell execution, host reconnaissance, DNS-based exfiltration | Completed with video walkthrough assistance |
 | [Boogeyman 2](./TryHackMe/Boogeyman-2/) | Phishing, malicious Office macro, staged payload delivery, Windows memory forensics, C2 analysis, scheduled-task persistence | Completed training-room investigation; report documents evidence gaps |
+| [Boogeyman 3](./TryHackMe/Boogeyman-3/) | HTA execution, UAC bypass, credential dumping, lateral movement, DCSync, ransomware staging | Completed with external walkthrough/reference assistance; selected first-host events independently reviewed |
